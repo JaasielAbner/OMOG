@@ -2,27 +2,53 @@ from bezier4 import bezier4
 import sys, pygame
 pygame.init()
 
-size = width, height = 300, 300
+size = width, height = 500, 500
 black = 0, 0, 0
+white = 255, 255, 255
+purple = 255, 17, 168
 
-screen = pygame.display.set_mode(size)
+screen = pygame.display.set_mode(size,pygame.RESIZABLE)
 
-control_points = [(10,10),(10,115),(125,200),(230,178)]
-bez = bezier4(control_points, 5000)
-pointList = bez.get_points()
+control_points = []
+state = "SETTING"
 
 while True:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT: sys.exit()
-	
-	screen.fill(black)
-	startPos = pointList[0]
-	for cp in control_points:
-		pygame.draw.circle(screen,(150,17,255),cp,5,1)
+		elif event.type == pygame.MOUSEBUTTONUP:
+			control_points.append(pygame.mouse.get_pos())
 
-	for endPos in pointList[1:]:
-		pygame.draw.line(color=(255,255,255),surface=screen,start_pos=startPos,end_pos=endPos)
-		startPos = endPos
+	screen.fill(black)
+
+	if state == "SETTING":
+		if len(control_points) == 5:
+				bez = bezier4(control_points, 100)
+				state = "BEZIER"
+				control_points = []			
+
+		for cp in control_points:
+			pygame.draw.circle(screen, white, cp, 5, 2)
+
+	elif state == "BEZIER":
+
+		if (pygame.mouse.get_pressed() == (True, False, False)):
+			x1,y1 = pygame.mouse.get_pos()
+			for i in range(5):
+				x,y = bez.control_points[i]
+				if(abs(x-x1)<=10 and abs(y-y1)<=10):
+					bez.control_points[i] = (x1,y1)
+			bez.function()
+
+		tani = bez.control_points[-1]
+		tanf = bez.control_points[-2]
+		# mult = [(tani[0]-tanf[0])/(tani[1]-tanf[1]), (tani[1]-tanf[1])/(tani[0]-tanf[0])]
+		tanf = (0.5*tanf[0] + 0.5*tani[0], 0.5*tanf[1] +0.5*tani[1])
+
+		pygame.draw.lines(screen, purple, False, bez.points, 2)
+		pygame.draw.line(screen,(255,255,0),tani,tanf,2)
+		for cp in bez.control_points:
+			pygame.draw.circle(screen, white, cp, 5, 2)
+
 	pygame.display.flip()
 
 
