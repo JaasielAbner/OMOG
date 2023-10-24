@@ -24,6 +24,8 @@ white = 255, 255, 255
 purple = 255, 17, 168
 green = 17, 200, 63
 
+da,db = 0,0
+
 screen = pygame.display.set_mode(size,pygame.RESIZABLE)
 
 control_points = []
@@ -39,9 +41,9 @@ while True:
 				control_points.append(pygame.mouse.get_pos())
 			pressedCP = None
 			witch = None
-		if witch == "bez":
+		elif witch == "bez":
 			bez.control_points[pressedCP] = pygame.mouse.get_pos()
-		if witch == "nur":
+		elif witch == "nur":
 			curve.control_points[pressedCP] = pygame.mouse.get_pos()
 
 	screen.fill(black)
@@ -81,11 +83,13 @@ while True:
 				if(abs(x-x1)<=10 and abs(y-y1)<=10):
 					pressedCP = i
 					witch = "nur"
-			bez.function()
-			curve.function()
-			da = (bez.control_points[-1][0] - curve.control_points[0][0])
-			db = (bez.control_points[-1][1] - curve.control_points[0][1])
-			
+		bez.function()
+		da = (bez.control_points[-1][0] - curve.control_points[0][0])
+		db = (bez.control_points[-1][1] - curve.control_points[0][1])
+		if pressedCP:
+			curve.update(da,db)
+		curve.function()
+
 
 		# # mult = [(tani[0]-tanf[0])/(tani[1]-tanf[1]), (tani[1]-tanf[1])/(tani[0]-tanf[0])]
 		pygame.draw.lines(screen, purple, False, bez.points, 2)
@@ -93,6 +97,7 @@ while True:
 		for cp in bez.control_points:
 			pygame.draw.circle(screen, white, cp, 5, 2)
 		for cp in curve.control_points:
+			cp = (cp[0] + curve.diff[0], cp[1] + curve.diff[1])
 			pygame.draw.circle(screen, white, cp, 5, 2)
 
 	pygame.display.flip()

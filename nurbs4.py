@@ -3,6 +3,7 @@ class NURBSCurve:
         self.precision = precision
         self.control_points = control_points
         self.knots = knots
+        self.diff = [0,0]
         self.function()
 
     def binomial_coefficient(self, k):
@@ -30,9 +31,12 @@ class NURBSCurve:
             for i in range(5):
                 basis = self.bernstein_basis(i, t)
                 for j in range(2):
-                    curve_point[j] += self.control_points[i][j] * basis
+                    curve_point[j] += (self.control_points[i][j] + self.diff[j]) * basis
             self.points.append(curve_point)
 
-    def updateControlPoints(self, control_points: list):
-        self.control_points = control_points
-        self.function()
+    def update(self, da, db):
+        self.diff = [da,db]
+
+    # def updateControlPoints(self, control_points: list):
+    #     self.control_points = control_points
+    #     self.function()
