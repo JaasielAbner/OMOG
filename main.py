@@ -3,20 +3,9 @@ from nurbs4 import NURBSCurve
 import sys, pygame
 pygame.init()
 
-# Define control points as a list of lists
-control_points = [
-    [300, 300],
-    [100, 100],
-    [200, 200],
-    [300, 200],
-    [400, 500]
-]
+control_points = []
 
-# Define the knot vector. For a degree 4 curve with 5 control points, you need 5 + 4 + 2 = 11 knots.
 knots = [0, 1, 1, 1, 1, 2, 3, 3, 3, 4, 4]
-
-# Create an instance of the NURBSCurve class
-curve = NURBSCurve(control_points, knots, 100)
 
 size = width, height = 500, 500
 black = 0, 0, 0
@@ -41,10 +30,11 @@ while True:
 				control_points.append(pygame.mouse.get_pos())
 			pressedCP = None
 			witch = None
-		elif witch == "bez":
-			bez.control_points[pressedCP] = pygame.mouse.get_pos()
-		elif witch == "nur":
-			curve.control_points[pressedCP] = pygame.mouse.get_pos()
+		if pressedCP != None:
+			if witch == "bez":
+				bez.control_points[pressedCP] = pygame.mouse.get_pos()
+			elif witch == "nur":
+				curve.control_points[pressedCP] = pygame.mouse.get_pos()
 
 	screen.fill(black)
 
@@ -78,16 +68,20 @@ while True:
 				if(abs(x-x1)<=10 and abs(y-y1)<=10):
 					pressedCP = i
 					witch = "bez"
-			for i in range(5):
+			for i in range(1,5):
 				x,y = curve.control_points[i]
 				if(abs(x-x1)<=10 and abs(y-y1)<=10):
 					pressedCP = i
 					witch = "nur"
-		bez.function()
 		da = (bez.control_points[-1][0] - curve.control_points[0][0])
 		db = (bez.control_points[-1][1] - curve.control_points[0][1])
-		if pressedCP:
+		if (da + curve.diff[0] != 0) and (db + curve.diff[1]!= 0):
 			curve.update(da,db)
+		else:
+			dela = bez.control_points[-1][0] - (curve.control_points[1][0] - bez.control_points[-1][0])
+			delb = bez.control_points[-1][1] - (curve.control_points[1][1] - bez.control_points[-1][1])
+			bez.control_points[-2] = (dela,delb)
+		bez.function()
 		curve.function()
 
 
@@ -97,7 +91,6 @@ while True:
 		for cp in bez.control_points:
 			pygame.draw.circle(screen, white, cp, 5, 2)
 		for cp in curve.control_points:
-			cp = (cp[0] + curve.diff[0], cp[1] + curve.diff[1])
 			pygame.draw.circle(screen, white, cp, 5, 2)
 
 	pygame.display.flip()

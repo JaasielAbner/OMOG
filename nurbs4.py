@@ -26,13 +26,16 @@ class NURBSCurve:
     def function(self):
         self.points = []
 
+
         for t in [_/self.precision for _ in range(self.precision+1)]:
             curve_point = [0.0] * 2
             for i in range(5):
                 basis = self.bernstein_basis(i, t)
+                self.control_points[i] = (self.control_points[i][0]+self.diff[0],self.control_points[i][1] + self.diff[1])
                 for j in range(2):
-                    curve_point[j] += (self.control_points[i][j] + self.diff[j]) * basis
+                    curve_point[j] += (self.control_points[i][j]) * basis
             self.points.append(curve_point)
+            self.diff = [0,0]
 
     def update(self, da, db):
         self.diff = [da,db]
