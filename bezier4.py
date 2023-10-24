@@ -1,13 +1,9 @@
 class bezier4:
-	def __init__(self,control_points: list, precision: int):
+	def __init__(self, control_points: list, precision: int):
 		self.control_points = control_points
 		self.precision = precision
 		self.function()		
 		
-
-	def updateControlPoints(self, control_points: list):
-		self.control_points = control_points
-		self.function()
 
 	def function(self):
 		self.points = []

@@ -1,11 +1,9 @@
 class NURBSCurve:
-    def __init__(self, control_points: list, knots):
+    def __init__(self, control_points: list, knots: list, precision: int):
+        self.precision = precision
         self.control_points = control_points
         self.knots = knots
-
-        if len(self.knots) != 11:
-            print("Invalid knot vector length")
-            exit()
+        self.function()
 
     def binomial_coefficient(self, k):
         if k == 0:
@@ -24,13 +22,17 @@ class NURBSCurve:
             u ** i
         )
 
-    def evaluate(self, u):
-        curve_point = [0.0] * 2
+    def function(self):
+        self.points = []
 
-        for i in range(5):
-            basis = self.bernstein_basis(i, u)
-            for j in range(2):
-                curve_point[j] += self.control_points[i][j] * basis
+        for t in [_/self.precision for _ in range(self.precision+1)]:
+            curve_point = [0.0] * 2
+            for i in range(5):
+                basis = self.bernstein_basis(i, t)
+                for j in range(2):
+                    curve_point[j] += self.control_points[i][j] * basis
+            self.points.append(curve_point)
 
-        return curve_point
-
+    def updateControlPoints(self, control_points: list):
+        self.control_points = control_points
+        self.function()
